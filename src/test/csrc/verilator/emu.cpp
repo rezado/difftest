@@ -40,6 +40,8 @@
 #include <sys/stat.h>
 #endif
 
+#define CONDUCT_DSE
+
 extern remote_bitbang_t *jtag;
 
 static uint64_t parse_and_update_ramsize(const char *arg_ramsize_str) {
@@ -401,8 +403,15 @@ Emulator::Emulator(int argc, const char *argv[])
   }
 #endif
 
-  // init core
+  // init dse
+#ifdef CONDUCT_DSE
+  reset_dse_ncycles(args.reset_cycles);
+  printf("reset dse complete\n");
+  // reset_ncycles(args.reset_cycles);
+#else
   reset_ncycles(args.reset_cycles);
+  printf("core reset complete\n");
+#endif
 
   // init ram
   uint64_t ram_size = DEFAULT_EMU_RAM_SIZE;
@@ -610,6 +619,67 @@ Emulator::~Emulator() {
   }
 
   delete dut_ptr;
+}
+
+inline void Emulator::reset_dse_ncycles(size_t cycles) {
+  if (args.trace_name && args.trace_is_read) {
+    return;
+  }
+
+  // give reset a posedge
+  dut_ptr->dse_rst = 0;
+  dut_ptr->reset = 0;
+  dut_ptr->clock = 0;
+  dut_ptr->eval();
+  dut_ptr->reset = 1;
+  dut_ptr->dse_rst = 1;
+  dut_ptr->eval();
+
+  for (int i = 0; i < cycles; i++) {
+#ifdef VERILATOR
+    dut_ptr->dse_rst = 1;
+    dut_ptr->reset = 1;
+#ifdef COVERAGE_PORT_RESET
+    dut_ptr->coverage_reset = dut_ptr->reset;
+#endif // COVERAGE_PORT_RESET
+    dut_ptr->clock = 1;
+#ifdef COVERAGE_PORT_CLOCK
+    dut_ptr->coverage_clock = dut_ptr->clock;
+#endif // COVERAGE_PORT_CLOCK
+    dut_ptr->eval();
+
+#if VM_TRACE == 1
+    if (args.enable_waveform && args.enable_waveform_full && args.log_begin == 0) {
+      tfp->dump(2 * i);
+    }
+#endif
+
+    dut_ptr->clock = 0;
+#ifdef COVERAGE_PORT_CLOCK
+    dut_ptr->coverage_clock = dut_ptr->clock;
+#endif // COVERAGE_PORT_CLOCK
+    dut_ptr->eval();
+
+#if VM_TRACE == 1
+    if (args.enable_waveform && args.enable_waveform_full && args.log_begin == 0) {
+      tfp->dump(2 * i + 1);
+    }
+#endif
+
+    dut_ptr->dse_rst = 0;
+    dut_ptr->reset = 0;
+#ifdef COVERAGE_PORT_RESET
+    dut_ptr->coverage_reset = dut_ptr->reset;
+#endif // COVERAGE_PORT_RESET
+#endif // VERILATOR
+
+#ifdef GSIM
+    dut_ptr->set_reset(1);
+    dut_ptr->step();
+    dut_ptr->set_reset(0);
+    dut_ptr->step();
+#endif // GSIM
+  }
 }
 
 inline void Emulator::reset_ncycles(size_t cycles) {
