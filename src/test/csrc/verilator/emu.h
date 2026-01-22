@@ -41,6 +41,13 @@
 #endif // ENABLE_FST
 #endif // VM_TRACE
 
+#include "uparam.h"
+#include <filesystem>
+#include "perfprocess.h"
+#include "o3cpu_design_space.h"
+
+namespace fs = boost::filesystem;
+
 struct EmuArgs {
   uint32_t reset_cycles = 50;
   uint32_t seed = 0;
@@ -116,6 +123,20 @@ private:
   uint64_t core_max_instr[NUM_CORES];
   uint32_t lasttime_poll = 0;
   uint32_t elapsed_time;
+
+  // dse
+  bool lastCycleDSEReset = false;
+  bool doDSEReset = false;
+  bool deg_record = false;
+  uint64_t deg_record_num = 0;
+  Perfprocess* perfprocess;
+  O3CPUDesignSpace design_space;
+  std::vector<int> embedding;
+  std::string idx;
+  std::string benchmark_name;
+  std::string benchmark_root_path = "/nfs/home/wujiabin/work/arch-explorer-new/infras/benchmarks";
+  fs::path embedding_path = "embedding.txt";
+  fs::path ipc_path = "ipc.rpt";
 
   inline void reset_ncycles(size_t cycles);
   inline void reset_dse_ncycles(size_t cycles);
