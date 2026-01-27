@@ -986,7 +986,7 @@ int Emulator::tick() {
     auto proxy = diff->proxy;
     for (int i = 0; i < NUM_CORES; i++) {
       double ipc = 0, cpi = 0;
-      if (dut_ptr->enable_collect_perf && !lastCycleDSEReset) {
+      if (dut_ptr->enable_collect_perf && !lastCycleCollectPerf) {
           printf("Collecting performance data...\n");
           auto trap = difftest[i]->get_trap_event();
           uint64_t epoch = dut_ptr->dse_epoch;
@@ -999,6 +999,7 @@ int Emulator::tick() {
           cpi = perfprocess->get_cpi();
 
           printf("IPC: %f\n", ipc);
+          lastCycleCollectPerf = true;
 
           // perfprocess->get_simulation_stats(epoch);
           // design_space.get_configs(embedding);
@@ -1087,6 +1088,7 @@ int Emulator::tick() {
       }
       if (lastCycleDSEReset && !dut_ptr->dse_reset_valid) {
         lastCycleDSEReset = false;
+        lastCycleCollectPerf = false;
         doDSEReset = true;
       }
     }

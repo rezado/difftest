@@ -126,6 +126,7 @@ private:
 
   // dse
   bool lastCycleDSEReset = false;
+  bool lastCycleCollectPerf = false;
   bool doDSEReset = false;
   bool deg_record = false;
   uint64_t deg_record_num = 0;
