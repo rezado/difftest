@@ -438,14 +438,19 @@ void O3CPUDesignSpace::get_configs(const std::vector<int>& embedding) const {
           << "MULCnt: " << MULCnt << "\n"
           << "FPUCnt: " << FPUCnt << "\n"
           << "FTBSize: " << FTBSize << "\n"
-          << "IQSize: " << embedding[EMDIdx::INTDQ] << "\n"
-          << "FPIQSize: " << embedding[EMDIdx::FPDQ] << "\n"
+        //   << "IQSize: " << embedding[EMDIdx::INTDQ] << "\n"
+          << "IQSize: " << 10 << "\n"
+        //   << "FPIQSize: " << embedding[EMDIdx::FPDQ] << "\n"
+          << "FPIQSize: " << 10 << "\n"
           << "ROBSize: " << embedding[EMDIdx::ROB] << "\n"
-          << "IntPhyRegs: " << embedding[EMDIdx::INTPHYREGS] << "\n"
-          << "FpPhyRegs: " << embedding[EMDIdx::FPPHYREGS] << "\n"
+        //   << "IntPhyRegs: " << embedding[EMDIdx::INTPHYREGS] << "\n"
+          << "IntPhyRegs: " << 64 << "\n"
+        //   << "FpPhyRegs: " << embedding[EMDIdx::FPPHYREGS] << "\n"
+          << "FpPhyRegs: " << 160 << "\n"
           << "SQSize: " << embedding[EMDIdx::SQ] << "\n"
           << "LQSize: " << embedding[EMDIdx::LQ] << "\n"
-          << "RASSize: " << embedding[EMDIdx::RASSIZE] << "\n"
+        //   << "RASSize: " << embedding[EMDIdx::RASSIZE] << "\n"
+          << "RASSize: " << 24 << "\n"
           << "ITLBSize: " << ITLBSize << "\n"
           << "DTLBSize: " << DTLBSize << "\n"
           << "ICacheSize: " << ICacheSize << "\n"
@@ -454,20 +459,25 @@ void O3CPUDesignSpace::get_configs(const std::vector<int>& embedding) const {
           << "ICache_response_latency: " << ICache_response_latency << "\n"
           << "ICache_MSHRs: " << ICacheMSHRs << "\n"
           << "ICache_prefetch_buffer_size: " << ICache_prefetch_buffer_size << "\n"
-          << "DCacheSize: " << 128 * embedding[EMDIdx::DCACHEWAYS] * 64 << "\n"
+        //   << "DCacheSize: " << 128 * embedding[EMDIdx::DCACHEWAYS] * 64 << "\n"
+          << "DCacheSize: " << 128 * 8 * 64 << "\n"
           << "DCacheBlockSize: " << DCacheBlockSize << "\n"
-          << "DCacheAssoc: " << embedding[EMDIdx::DCACHEWAYS] << "\n"
+        //   << "DCacheAssoc: " << embedding[EMDIdx::DCACHEWAYS] << "\n"
+          << "DCacheAssoc: " << 8 << "\n"
           << "DCache_response_latency: " << DCache_response_latency << "\n"
           << "DCache_MSHRs: " << DCacheMSHRs << "\n"
           << "DCache_prefetch_buffer_size: " << DCache_prefetch_buffer_size << "\n"
           << "DCache_wb_buffer_size: " << DCache_wb_buffer_size << "\n"
-          << "MSHRS: " << embedding[EMDIdx::L2MSHRS] + embedding[EMDIdx::L3MSHRS] << "\n"
+        //   << "MSHRS: " << embedding[EMDIdx::L2MSHRS] + embedding[EMDIdx::L3MSHRS] << "\n"
+          << "MSHRS: " << 8 << "\n"
           << "BTBSize: " << BTBSize << "\n"
-          << "L2_capacity: " << embedding[EMDIdx::L2SETS] * 8 * 4 / 16 * 1024 << "\n"
+        //   << "L2_capacity: " << embedding[EMDIdx::L2SETS] * 8 * 4 / 16 * 1024 << "\n"
+          << "L2_capacity: " << 128 * 8 * 4 / 16 * 1024 << "\n"
           << "L2_block_width: " << L2_block_width << "\n"
           << "L2_assoc: " << L2_assoc << "\n"
           << "L2_banks: " << L2_banks << "\n"
-          << "L2_mshrs: " << embedding[EMDIdx::L2MSHRS] << "\n";
+        //   << "L2_mshrs: " << embedding[EMDIdx::L2MSHRS] << "\n";
+          << "L2_mshrs: " << 4 << "\n";
         //   << "L3_capacity: " << embedding[EMDIdx::L3SETS] * 8 * 4 / 16 * 1024 << "\n"
         //   << "L3_block_width: " << l3_block_width << "\n"
         //   << "L3_assoc: " << l3_assoc << "\n"
@@ -482,160 +492,3 @@ void O3CPUDesignSpace::get_configs(const std::vector<int>& embedding) const {
         std::cerr << "Failed to open stats.txt for writing." << std::endl;
       }
 }
-
-
-// O3CPUDesignSpace::O3CPUDesignSpace(
-//     const std::map<std::string, std::map<std::string, std::vector<int>>>& descriptions,
-//     const std::map<std::string, std::map<int, std::vector<int>>>& components_mappings,
-//     int size)
-//     : descriptions(descriptions) {
-    
-//     // 初始化designs列表
-//     for (const auto& design : descriptions) {
-//         designs.push_back(design.first);
-//     }
-
-//     // 初始化components列表
-//     if (!designs.empty()) {
-//         const auto& first_design = descriptions.at(designs[0]);
-//         for (const auto& component : first_design) {
-//             components.push_back(component.first);
-//         }
-//     }
-
-//     // 构造design_size并验证
-//     design_size = construct_design_size();
-//     int total_size = std::accumulate(design_size.begin(), design_size.end(), 0);
-//     if (total_size != size) {
-//         throw std::runtime_error("Size mismatch: " + std::to_string(total_size) + 
-//                                " vs " + std::to_string(size));
-//     }
-
-//     // 计算累积大小
-//     acc_design_size = design_size;
-//     std::partial_sum(design_size.begin(), design_size.end(), acc_design_size.begin());
-
-//     // 初始化基类
-//     DesignSpace::initialize(size, components.size());
-//     O3CPUMacros::initialize(components_mappings, construct_component_dims());
-// }
-
-// std::vector<int> O3CPUDesignSpace::construct_design_size() const {
-//     std::vector<int> design_size;
-//     for (const auto& design : descriptions) {
-//         std::vector<int> _design_size;
-//         for (const auto& component : design.second) {
-//             _design_size.push_back(component.second.size());
-//         }
-//         int prod = 1;
-//         for (int size : _design_size) {
-//             prod *= size;
-//         }
-//         design_size.push_back(prod);
-//     }
-//     return design_size;
-// }
-
-// std::vector<std::vector<int>> O3CPUDesignSpace::construct_component_dims() const {
-//     std::vector<std::vector<int>> component_dims;
-//     for (const auto& design : descriptions) {
-//         std::vector<int> _component_dims;
-//         for (const auto& component : design.second) {
-//             _component_dims.push_back(component.second.size());
-//         }
-//         component_dims.push_back(_component_dims);
-//     }
-//     return component_dims;
-// }
-
-// void O3CPUDesignSpace::valid(int idx) const {
-//     if (idx <= 0 || idx > size) {
-//         throw std::out_of_range("Invalid index: " + std::to_string(idx));
-//     }
-// }
-
-// std::vector<int> O3CPUDesignSpace::idx_to_vec(int idx) const {
-//     valid(idx);
-//     idx--;
-//     std::vector<int> vec;
-    
-//     // 找到对应的设计
-//     auto it = std::upper_bound(acc_design_size.begin(), acc_design_size.end(), idx);
-//     int design = std::distance(acc_design_size.begin(), it);
-    
-//     // 减去偏移量
-//     if (design > 0) {
-//         idx -= acc_design_size[design - 1];
-//     }
-
-//     // 构造向量
-//     const auto& dims = component_dims[design];
-//     for (int dim : dims) {
-//         vec.push_back(idx % dim);
-//         idx /= dim;
-//     }
-
-//     // 添加偏移量
-//     for (size_t i = 0; i < vec.size(); i++) {
-//         vec[i] = descriptions.at(designs[design])
-//                            .at(components[i])
-//                            [vec[i]];
-//     }
-//     return vec;
-// }
-
-// int O3CPUDesignSpace::vec_to_idx(const std::vector<int>& vec) const {
-//     int design = 0;
-//     int idx = 0;
-//     std::vector<int> temp_vec = vec;
-
-//     // 减去偏移量
-//     for (size_t i = 0; i < temp_vec.size(); i++) {
-//         const auto& component_values = descriptions.at(designs[design])
-//                                                  .at(components[i]);
-//         auto it = std::find(component_values.begin(), 
-//                            component_values.end(), 
-//                            temp_vec[i]);
-//         if (it == component_values.end()) {
-//             throw std::runtime_error("Invalid vector value");
-//         }
-//         temp_vec[i] = std::distance(component_values.begin(), it);
-//     }
-
-//     // 计算索引
-//     for (size_t j = 0; j < temp_vec.size(); j++) {
-//         int prod = 1;
-//         for (size_t k = 0; k < j; k++) {
-//             prod *= component_dims[design][k];
-//         }
-//         idx += prod * temp_vec[j];
-//     }
-
-//     // 添加偏移量
-//     if (design > 0) {
-//         idx += acc_design_size[design - 1];
-//     }
-//     idx++;
-
-//     valid(idx);
-//     return idx;
-// }
-
-// std::vector<int> O3CPUDesignSpace::idx_to_embedding(int idx) const {
-//     std::vector<int> vec = idx_to_vec(idx);
-//     return vec_to_embedding(vec);
-// }
-
-// int O3CPUDesignSpace::embedding_to_idx(const std::vector<int>& embedding) const {
-//     std::vector<int> vec = embedding_to_vec(embedding);
-//     return vec_to_idx(vec);
-// }
-
-
-// O3CPUDesignSpace parse_o3cpu_design_space(const std::string& design_space_csv,
-//                                           const std::string& components_csv) {
-//     // read csv
-//     io::CSVReader<3> in(design_space_csv);
-
-// }
-
