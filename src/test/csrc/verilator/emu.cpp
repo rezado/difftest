@@ -1001,8 +1001,8 @@ int Emulator::tick() {
           printf("IPC: %f\n", ipc);
           lastCycleCollectPerf = true;
 
-          // perfprocess->get_simulation_stats(epoch);
-          // design_space.get_configs(embedding);
+          perfprocess->get_simulation_stats(epoch);
+          design_space.get_configs(embedding);
       }
 
       if (dut_ptr->dse_reset_valid && !lastCycleDSEReset) {
